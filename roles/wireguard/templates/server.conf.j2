@@ -4,8 +4,7 @@ ListenPort = {{ wireguard_port }}
 PrivateKey = {{ lookup('file', wireguard_pki_path + '/private/' + server_ip) }}
 SaveConfig = false
 
-{% for u in wireguard_users %}
-{% if u in users %}
+{% for u in users %}
 {% set index = loop.index %}
 
 [Peer]
@@ -13,5 +12,4 @@ SaveConfig = false
 PublicKey = {{ lookup('file', wireguard_pki_path + '/public/' + u) }}
 AllowedIPs = {{ wireguard_network_clients_range }}.{{ wireguard_network_clients_start + index }}/32
 
-{% endif %}
 {% endfor %}
