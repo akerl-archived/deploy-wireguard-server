@@ -1,0 +1,69 @@
+---
+- name: Delete the lock files
+  file:
+    dest: "/etc/wireguard/private_{{ item }}.lock"
+    state: absent
+  with_items:
+    - "{{ users }}"
+    - "{{ server_ip }}"
+
+- name: Generate private keys
+  command: wg genkey
+  register: wg_genkey
+  args:
+    creates: "/etc/wireguard/private_{{ item }}.lock"
+  no_log: true
+  with_items:
+    - "{{ users }}"
+    - "{{ server_ip }}"
+
+- name: Save private keys
+  copy:
+    dest: "{{ wireguard_pki_path }}/private/{{ item['item'] }}"
+    content: "{{ item['stdout'] }}"
+    mode: "0600"
+  with_items: "{{ wg_genkey['results'] }}"
+
+- name: Generate public keys
+  shell: echo "{{ lookup('file', wireguard_pki_path + '/private/' + item) }}" | wg pubkey
+  register: wg_pubkey
+  args:
+    executable: bash
+  with_items:
+    - "{{ users }}"
+    - "{{ server_ip }}"
+
+- name: Save public keys
+  copy:
+    dest: "{{ wireguard_pki_path }}/public/{{ item['item'] }}"
+    content: "{{ item['stdout'] }}"
+    mode: "0600"
+  no_log: true
+  with_items: "{{ wg_pubkey['results'] }}"
+
+- name: WireGuard users config generated
+  template:
+    src: client.conf.j2
+    dest: "{{ wireguard_config_path }}/{{ item.1 }}.conf"
+    mode: "0600"
+  with_indexed_items:  "{{ users }}"
+  vars:
+    index: "{{ item.0 }}"
+
+- name: Generate QR codes
+  command: segno --scale=5 --output={{ item.1 }}.png "{{ lookup('template', 'client.conf.j2') }}"
+  with_indexed_items:  "{{ users }}"
+  vars:
+    index: "{{ item.0 }}"
+  args:
+    chdir: "{{ wireguard_config_path }}"
+
+- name: WireGuard configured
+  template:
+    src: server.conf.j2
+    dest: "/etc/wireguard/{{ wireguard_interface }}.conf"
+    mode: "0600"
+  notify: restart wireguard
+
+- meta: flush_handlers
+

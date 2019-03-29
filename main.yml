@@ -10,3 +10,6 @@
     - role: common
     - role: dns_encryption
     - role: wireguard
+    - role: users
+      tags:
+        - users
