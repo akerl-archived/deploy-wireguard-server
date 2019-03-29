@@ -27,8 +27,7 @@
 ## The proxy will automatically pick the fastest, working servers from the list.
 ## Remove the leading # first to enable this; lines starting with # are ignored.
 
-{% if dnscrypt_servers.ipv4 %}{% set servers = dnscrypt_servers.ipv4 %}{% endif %}
-server_names = ['{{ servers | join("', '") }}']
+server_names = ['{{ dnscrypt_servers | join("', '") }}']
 
 
 ## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.
