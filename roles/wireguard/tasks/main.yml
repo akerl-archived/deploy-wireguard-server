@@ -35,6 +35,14 @@
     - private
     - public
 
+- name: Delete the lock files
+  file:
+    dest: "/etc/wireguard/private_{{ item }}.lock"
+    state: absent
+  with_items:
+    - "{{ users }}"
+    - "{{ server_ip }}"
+
 - name: Generate private keys
   command: wg genkey
   register: wg_genkey
