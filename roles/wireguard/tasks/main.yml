@@ -1,4 +1,9 @@
 ---
+- name: WireGuard repository configured
+  apt_repository:
+    repo: ppa:wireguard/wireguard
+    state: present
+
 - name: WireGuard installed
   apt:
     name: wireguard
