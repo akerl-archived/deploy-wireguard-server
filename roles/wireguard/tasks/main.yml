@@ -49,11 +49,8 @@
       dest: "{{ wireguard_pki_path }}/private/{{ item['item'] }}"
       content: "{{ item['stdout'] }}"
       mode: "0600"
-    no_log: true
     when: item.changed
     with_items: "{{ wg_genkey['results'] }}"
-    delegate_to: localhost
-    become: false
 
   - name: Touch the lock file
     file:
