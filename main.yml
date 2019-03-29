@@ -2,6 +2,9 @@
   hosts: localhost
   vars_files:
     - config.cfg
+  pre_tasks:
+    - set_fact:
+        server_ip: "{{ ansible_eth0.ipv4.address }}"
   roles:
     - role: unattended_upgrades
     - role: common
