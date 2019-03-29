@@ -1,0 +1,8 @@
+- name: Provision the server
+  hosts: localhost
+  vars_files:
+    - config.cfg
+  roles:
+    - role: common
+    - role: dns_encryption
+    - role: wireguard
