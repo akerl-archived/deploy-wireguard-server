@@ -1,6 +1,3 @@
-{% set subnets = ([[wireguard_network_ipv4] | join(',')) %}
-{% set ports = ([wireguard_port] | join(',')) %}
-
 #### The mangle table
 # This table allows us to modify packet headers
 # Packets enter this table first
@@ -27,7 +24,7 @@ COMMIT
 :POSTROUTING ACCEPT [0:0]
 
 # Allow traffic from the VPN network to the outside world, and replies
--A POSTROUTING -s {{ subnets }} -m policy --pol none --dir out -j MASQUERADE
+-A POSTROUTING -s {{ wireguard_network_range }} -m policy --pol none --dir out -j MASQUERADE
 
 
 COMMIT
@@ -55,7 +52,7 @@ COMMIT
 # rate limit ICMP traffic per source
 -A INPUT -p icmp --icmp-type echo-request -m hashlimit --hashlimit-upto 5/s --hashlimit-mode srcip --hashlimit-srcmask 32 --hashlimit-name icmp-echo-drop -j ACCEPT
 # Accept IPSEC/WireGuard traffic to ports
--A INPUT -p udp -m multiport --dports {{ ports }} -j ACCEPT
+-A INPUT -p udp -m multiport --dports {{ wireguard_port }} -j ACCEPT
 # Allow new traffic to port 22 (SSH)
 -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -j ACCEPT
 
@@ -63,7 +60,7 @@ COMMIT
 -A INPUT -d {{ server_ip }} -p udp --dport 53 -j ACCEPT
 
 # Drop traffic between VPN clients
--A FORWARD -s {{ subnets }} -d {{ subnets }} -j "DROP"
+-A FORWARD -s {{ wireguard_network_range }} -d {{ wireguard_network_range }} -j "DROP"
 
 # Forward any packet that's part of an established connection
 -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
@@ -74,7 +71,7 @@ COMMIT
 -A FORWARD -p tcp -m multiport --ports 137,139 -j DROP
 
 # Forward any traffic from the WireGuard VPN network
--A FORWARD -m conntrack --ctstate NEW -s {{ wireguard_network }} -m policy --pol none --dir in -j ACCEPT
+-A FORWARD -m conntrack --ctstate NEW -s {{ wireguard_network_range }} -m policy --pol none --dir in -j ACCEPT
 
 
 COMMIT
