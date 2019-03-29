@@ -3,10 +3,6 @@
   apt_repository:
     repo: ppa:wireguard/wireguard
     state: present
-  register: result
-  until: result is succeeded
-  retries: 10
-  delay: 3
 
 - name: WireGuard installed
   apt:
@@ -29,25 +25,24 @@
 
 - set_fact:
     service_name: "wg-quick@{{ wireguard_interface }}"
-  tags: always
 
 - name: Delete the lock files
   file:
-    dest: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
+    dest: "/etc/wireguard/private_{{ item }}.lock"
     state: absent
   when: keys_clean_all|bool == True
   with_items:
     - "{{ users }}"
-    - "{{ IP_subject_alt_name }}"
+    - "{{ server_ip }}"
 
 - name: Generate private keys
   command: wg genkey
   register: wg_genkey
   args:
-    creates: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
+    creates: "/etc/wireguard/private_{{ item }}.lock"
   with_items:
     - "{{ users }}"
-    - "{{ IP_subject_alt_name }}"
+    - "{{ server_ip }}"
 
 - block:
   - name: Save private keys
@@ -63,11 +58,11 @@
 
   - name: Touch the lock file
     file:
-      dest: "{{ config_prefix|default('/') }}etc/wireguard/private_{{ item }}.lock"
+      dest: "/etc/wireguard/private_{{ item }}.lock"
       state: touch
     with_items:
       - "{{ users }}"
-      - "{{ IP_subject_alt_name }}"
+      - "{{ server_ip }}"
   when: wg_genkey.changed
 
 - name: Generate public keys
@@ -78,7 +73,7 @@
     executable: bash
   with_items:
     - "{{ users }}"
-    - "{{ IP_subject_alt_name }}"
+    - "{{ server_ip }}"
 
 - name: Save public keys
   copy:
@@ -90,57 +85,51 @@
   delegate_to: localhost
   become: false
 
-- block:
-  - block:
-    - name: WireGuard user list updated
-      lineinfile:
-        dest: "{{ wireguard_pki_path }}/index.txt"
-        create: true
-        mode: "0600"
-        insertafter: EOF
-        line: "{{ item }}"
-      register: lineinfile
-      with_items: "{{ users }}"
+- name: WireGuard user list updated
+  lineinfile:
+    dest: "{{ wireguard_pki_path }}/index.txt"
+    create: true
+    mode: "0600"
+    insertafter: EOF
+    line: "{{ item }}"
+  register: lineinfile
+  with_items: "{{ users }}"
 
-    - set_fact:
-        wireguard_users: "{{ (lookup('file', wireguard_pki_path + 'index.txt')).split('\n') }}"
+- set_fact:
+    wireguard_users: "{{ (lookup('file', wireguard_pki_path + 'index.txt')).split('\n') }}"
 
-    - name: WireGuard users config generated
-      template:
-        src: client.conf.j2
-        dest: "{{ wireguard_config_path }}/{{ item.1 }}.conf"
-        mode: "0600"
-      with_indexed_items:  "{{ wireguard_users }}"
-      when: item.1 in users
-      vars:
-        index: "{{ item.0 }}"
+- name: WireGuard users config generated
+  template:
+    src: client.conf.j2
+    dest: "{{ wireguard_config_path }}/{{ item.1 }}.conf"
+    mode: "0600"
+  with_indexed_items:  "{{ wireguard_users }}"
+  when: item.1 in users
+  vars:
+    index: "{{ item.0 }}"
 
-    - name: Generate QR codes
-      shell: >
-        umask 077;
-        which segno &&
-        segno --scale=5 --output={{ item.1 }}.png \
-          "{{ lookup('template', 'client.conf.j2') }}" || true
-      changed_when: false
-      with_indexed_items:  "{{ wireguard_users }}"
-      when: item.1 in users
-      vars:
-        index: "{{ item.0 }}"
-        ansible_python_interpreter: "{{ ansible_playbook_python }}"
-      args:
-        chdir: "{{ wireguard_config_path }}"
-        executable: bash
-    become: false
-    delegate_to: localhost
+- name: Generate QR codes
+  shell: >
+    umask 077;
+    which segno &&
+    segno --scale=5 --output={{ item.1 }}.png \
+      "{{ lookup('template', 'client.conf.j2') }}" || true
+  changed_when: false
+  with_indexed_items:  "{{ wireguard_users }}"
+  when: item.1 in users
+  vars:
+    index: "{{ item.0 }}"
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  args:
+    chdir: "{{ wireguard_config_path }}"
+    executable: bash
 
-  - name: WireGuard configured
-    template:
-      src: server.conf.j2
-      dest: "{{ config_prefix|default('/') }}etc/wireguard/{{ wireguard_interface }}.conf"
-      mode: "0600"
-    notify: restart wireguard
-  tags: update-users
-
+- name: WireGuard configured
+  template:
+    src: server.conf.j2
+    dest: "/etc/wireguard/{{ wireguard_interface }}.conf"
+    mode: "0600"
+  notify: restart wireguard
 
 - name: WireGuard enabled and started
   service:

@@ -4,10 +4,6 @@
     state: present
     codename: bionic
     repo: ppa:shevchuk/dnscrypt-proxy
-  register: result
-  until: result is succeeded
-  retries: 10
-  delay: 3
 
 - name: Install dnscrypt-proxy
   apt:
@@ -23,7 +19,7 @@
     group: root
     mode: 0644
 
-- name: Ubuntu | Unbound profile for apparmor configured
+- name: Unbound profile for apparmor configured
   copy:
     src: apparmor.profile.dnscrypt-proxy
     dest: /etc/apparmor.d/usr.bin.dnscrypt-proxy
@@ -32,11 +28,11 @@
     mode: 0600
   notify: restart dnscrypt-proxy
 
-- name: Ubuntu | Enforce the dnscrypt-proxy AppArmor policy
+- name: Enforce the dnscrypt-proxy AppArmor policy
   command: aa-enforce usr.bin.dnscrypt-proxy
   changed_when: false
 
-- name: Ubuntu | Ensure that the dnscrypt-proxy service directory exist
+- name: Ensure that the dnscrypt-proxy service directory exist
   file:
     path: /etc/systemd/system/dnscrypt-proxy.service.d/
     state: directory
@@ -44,7 +40,7 @@
     owner: root
     group: root
 
-- name: Ubuntu | Add custom requirements to successfully start the unit
+- name: Add custom requirements to successfully start the unit
   copy:
     dest: /etc/systemd/system/dnscrypt-proxy.service.d/99-algo.conf
     content: |
@@ -60,14 +56,14 @@
 - name: dnscrypt-proxy ip-blacklist configured
   template:
     src: ip-blacklist.txt.j2
-    dest: "{{ config_prefix|default('/') }}etc/dnscrypt-proxy/ip-blacklist.txt"
+    dest: /etc/dnscrypt-proxy/ip-blacklist.txt
   notify:
     - restart dnscrypt-proxy
 
 - name: dnscrypt-proxy configured
   template:
     src: dnscrypt-proxy.toml.j2
-    dest: "{{ config_prefix|default('/') }}etc/dnscrypt-proxy/dnscrypt-proxy.toml"
+    dest: /etc/dnscrypt-proxy/dnscrypt-proxy.toml
   notify:
     - restart dnscrypt-proxy
 

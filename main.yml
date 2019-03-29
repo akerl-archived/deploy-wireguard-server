@@ -3,6 +3,7 @@
   vars_files:
     - config.cfg
   roles:
+    - role: unattended_upgrades
     - role: common
     - role: dns_encryption
     - role: wireguard

@@ -1,4 +1,3 @@
 ---
 dnscrypt_servers:
-  ipv4:
-    - google
+  - google
