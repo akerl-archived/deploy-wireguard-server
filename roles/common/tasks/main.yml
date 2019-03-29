@@ -11,18 +11,17 @@
 
 - name: Install tools
   apt:
-    name: "{{ item }}"
+    name:
+      - git
+      - screen
+      - apparmor-utils
+      - uuid-runtime
+      - coreutils
+      - iptables-persistent
+      - cgroup-tools
+      - openssl
     state: present
     update_cache: true
-  with_items:
-    - git
-    - screen
-    - apparmor-utils
-    - uuid-runtime
-    - coreutils
-    - iptables-persistent
-    - cgroup-tools
-    - openssl
 
 - name: Install headers
   apt:
