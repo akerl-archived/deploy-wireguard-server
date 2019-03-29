@@ -1,6 +1,6 @@
 ---
-wireguard_config_path: "configs/{{ server_ip }}/wireguard/"
-wireguard_pki_path: "{{ wireguard_config_path }}/.pki/"
+wireguard_config_path: "configs/{{ server_ip }}/wireguard"
+wireguard_pki_path: "{{ wireguard_config_path }}/.pki"
 wireguard_interface: wg0
 wireguard_port: 51820
 wireguard_network_subnet: 10.19.49.0

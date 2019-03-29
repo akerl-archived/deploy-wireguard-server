@@ -26,6 +26,15 @@
 - set_fact:
     service_name: "wg-quick@{{ wireguard_interface }}"
 
+- name: Ensure the required directories exist
+  file:
+    dest: "{{ wireguard_pki_path }}/{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - private
+    - public
+
 - name: Delete the lock files
   file:
     dest: "/etc/wireguard/private_{{ item }}.lock"
