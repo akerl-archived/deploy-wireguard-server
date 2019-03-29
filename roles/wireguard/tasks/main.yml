@@ -93,7 +93,6 @@
     index: "{{ item.0 }}"
   args:
     chdir: "{{ wireguard_config_path }}"
-    executable: bash
 
 - name: WireGuard configured
   template:
