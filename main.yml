@@ -2,6 +2,11 @@
   hosts: localhost
   vars_files:
     - config.cfg
+  pre_tasks:
+    - name: Add the server to an inventory group
+      add_host:
+        name: localhost
+        ansible_connection: local
   roles:
     - role: unattended_upgrades
     - role: common
