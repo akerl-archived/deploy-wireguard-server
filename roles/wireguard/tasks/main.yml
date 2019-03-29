@@ -30,7 +30,6 @@
   file:
     dest: "/etc/wireguard/private_{{ item }}.lock"
     state: absent
-  when: keys_clean_all|bool == True
   with_items:
     - "{{ users }}"
     - "{{ server_ip }}"
