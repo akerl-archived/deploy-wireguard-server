@@ -35,45 +35,26 @@
     - private
     - public
 
-- name: Delete the lock files
-  file:
-    dest: "/etc/wireguard/private_{{ item }}.lock"
-    state: absent
-  with_items:
-    - "{{ users }}"
-    - "{{ server_ip }}"
-
 - name: Generate private keys
   command: wg genkey
   register: wg_genkey
   args:
     creates: "/etc/wireguard/private_{{ item }}.lock"
+  no_log: true
   with_items:
     - "{{ users }}"
     - "{{ server_ip }}"
 
-- block:
-  - name: Save private keys
-    copy:
-      dest: "{{ wireguard_pki_path }}/private/{{ item['item'] }}"
-      content: "{{ item['stdout'] }}"
-      mode: "0600"
-    when: item.changed
-    with_items: "{{ wg_genkey['results'] }}"
-
-  - name: Touch the lock file
-    file:
-      dest: "/etc/wireguard/private_{{ item }}.lock"
-      state: touch
-    with_items:
-      - "{{ users }}"
-      - "{{ server_ip }}"
-  when: wg_genkey.changed
+- name: Save private keys
+  copy:
+    dest: "{{ wireguard_pki_path }}/private/{{ item['item'] }}"
+    content: "{{ item['stdout'] }}"
+    mode: "0600"
+  with_items: "{{ wg_genkey['results'] }}"
 
 - name: Generate public keys
   shell: echo "{{ lookup('file', wireguard_pki_path + '/private/' + item) }}" | wg pubkey
   register: wg_pubkey
-  changed_when: false
   args:
     executable: bash
   with_items:
@@ -87,44 +68,21 @@
     mode: "0600"
   no_log: true
   with_items: "{{ wg_pubkey['results'] }}"
-  delegate_to: localhost
-  become: false
-
-- name: WireGuard user list updated
-  lineinfile:
-    dest: "{{ wireguard_pki_path }}/index.txt"
-    create: true
-    mode: "0600"
-    insertafter: EOF
-    line: "{{ item }}"
-  register: lineinfile
-  with_items: "{{ users }}"
-
-- set_fact:
-    wireguard_users: "{{ (lookup('file', wireguard_pki_path + '/index.txt')).split('\n') }}"
 
 - name: WireGuard users config generated
   template:
     src: client.conf.j2
     dest: "{{ wireguard_config_path }}/{{ item.1 }}.conf"
     mode: "0600"
-  with_indexed_items:  "{{ wireguard_users }}"
-  when: item.1 in users
+  with_indexed_items:  "{{ users }}"
   vars:
     index: "{{ item.0 }}"
 
 - name: Generate QR codes
-  shell: >
-    umask 077;
-    which segno &&
-    segno --scale=5 --output={{ item.1 }}.png \
-      "{{ lookup('template', 'client.conf.j2') }}" || true
-  changed_when: false
-  with_indexed_items:  "{{ wireguard_users }}"
-  when: item.1 in users
+  command: segno --scale=5 --output={{ item.1 }}.png "{{ lookup('template', 'client.conf.j2') }}"
+  with_indexed_items:  "{{ users }}"
   vars:
     index: "{{ item.0 }}"
-    ansible_python_interpreter: "{{ ansible_playbook_python }}"
   args:
     chdir: "{{ wireguard_config_path }}"
     executable: bash
