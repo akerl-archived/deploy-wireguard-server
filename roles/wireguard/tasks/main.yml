@@ -34,11 +34,3 @@
   with_items:
     - private
     - public
-
-- name: WireGuard enabled and started
-  service:
-    name: "{{ service_name }}"
-    state: started
-    enabled: true
-
-- meta: flush_handlers
