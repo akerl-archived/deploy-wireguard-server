@@ -12,3 +12,4 @@ wireguard_network_range: "{{ wireguard_network_subnet }}/{{ wireguard_network_pr
 wireguard_dns_servers: 127.0.0.1
 wireguard_client_ip: "{{ wireguard_network_clients_range }}.{{ wireguard_network_clients_start + index|int + 1 }}/{{ wireguard_network_prefix }}"
 wireguard_server_ip: "{{ wireguard_network_ipv4_gateway }}/{{ wireguard_network_ipv4_prefix }}"
+wireguard_dns_servers: "{{ local_service_ip }}"

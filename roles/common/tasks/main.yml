@@ -30,6 +30,13 @@
       - "linux-headers-{{ ansible_kernel }}"
     state: present
 
+- name: Loopback for services configured
+  template:
+    src: 10-algo-lo100.network.j2
+    dest: /etc/systemd/network/10-algo-lo100.network
+  notify:
+    - restart systemd-networkd
+
 - name: Iptables configured
   template:
     src: rules.v4.j2

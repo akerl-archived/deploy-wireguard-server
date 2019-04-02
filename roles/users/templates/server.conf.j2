@@ -1,5 +1,5 @@
 [Interface]
-Address = {{ server_ip }}
+Address = {{ wireguard_server_ip }}
 ListenPort = {{ wireguard_port }}
 PrivateKey = {{ lookup('file', wireguard_pki_path + '/private/' + server_ip) }}
 SaveConfig = false
