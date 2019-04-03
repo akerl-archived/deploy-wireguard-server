@@ -1,0 +1,20 @@
+- name: Upgrade all packages
+  apt:
+    upgrade: dist
+    update_cache: yes
+    autoremove: yes
+    autoclean: yes
+- name: Install critical packages
+  apt:
+    name:
+      - python3-dev
+      - python3-pip
+      - build-essential
+      - git
+      - vim-nox
+    state: latest
+- name: Install ansible
+  pip:
+    name: ansible
+    state: latest
+    executable: pip3

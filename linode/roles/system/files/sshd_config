@@ -1,0 +1,30 @@
+Port 22
+AddressFamily any
+
+Protocol 2
+KexAlgorithms curve25519-sha256@libssh.org
+Ciphers chacha20-poly1305@openssh.com
+
+UsePrivilegeSeparation sandbox
+StrictModes yes
+HostBasedAuthentication no
+IgnoreUserKnownHosts yes
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+UseLogin no
+UseDNS no
+PrintMotd no
+PrintLastlog yes
+MaxStartups 10
+MaxSessions 5
+Subsystem sftp internal-sftp
+
+TCPKeepAlive no
+ClientAliveInterval 86400
+ClientAliveCountMax 2
+
+LoginGraceTime 30
+PermitRootLogin yes
+PubkeyAuthentication yes
+AuthorizedKeysFile %h/.ssh/authorized_keys
+PasswordAuthentication no

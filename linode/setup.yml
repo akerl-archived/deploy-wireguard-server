@@ -1,0 +1,3 @@
+- name: Setup the server
+  roles:
+    - system
