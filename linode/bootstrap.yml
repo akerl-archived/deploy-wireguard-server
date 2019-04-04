@@ -1,3 +1,5 @@
 - name: Bootstrap the server
+  hosts: all
+  gather_facts: no
   roles:
     - packages

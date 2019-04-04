@@ -1,3 +1,7 @@
+- name: Raw update apt
+  raw: apt update
+- name: Raw install for python
+  raw: apt install -y python3-pip
 - name: Upgrade all packages
   apt:
     upgrade: dist
