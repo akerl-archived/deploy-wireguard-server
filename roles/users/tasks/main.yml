@@ -57,7 +57,7 @@
     index_var: index
 
 - name: Generate QR codes
-  command: segno --scale=5 --output={{ item[0]['item'] }}.png "{{ lookup('template', 'client.conf.j2') }}"
+  command: segno --scale=5 --output={{ item[0][index]['item'] }}.png "{{ lookup('template', 'client.conf.j2') }}"
   no_log: true
   loop: "{{ wg_genkey['results']|zip(wg_pubkey['results'])|list }}"
   loop_control:
