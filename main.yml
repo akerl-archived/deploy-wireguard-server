@@ -3,7 +3,7 @@
   pre_tasks:
     - name: Set IP address fact
       set_fact:
-        server_ip: "{{ ansible_eth0.ipv4.address }}"
+        server_ip: "{{ ansible_default_ipv4.address }}"
       tags:
         - always
     - name: Load custom config file
