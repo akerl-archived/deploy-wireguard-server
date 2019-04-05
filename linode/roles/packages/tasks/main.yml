@@ -16,9 +16,7 @@
       - build-essential
       - git
       - vim-nox
-    state: latest
 - name: Install ansible
   pip:
     name: ansible
-    state: latest
     executable: pip3

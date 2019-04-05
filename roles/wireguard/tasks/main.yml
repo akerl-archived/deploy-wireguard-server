@@ -7,7 +7,6 @@
 - name: WireGuard installed
   apt:
     name: wireguard
-    state: present
     update_cache: true
 
 - name: WireGuard reload-module-on-update
@@ -23,5 +22,6 @@
     group: root
     mode: 0644
 
-- set_fact:
+- name: "Set WG service name fact"
+  set_fact:
     service_name: "wg-quick@{{ wireguard_interface }}"

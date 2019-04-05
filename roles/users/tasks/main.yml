@@ -7,6 +7,7 @@
   with_items:
     - private
     - public
+
 - name: Generate private keys
   command: wg genkey
   register: wg_genkey
@@ -24,10 +25,10 @@
   with_items: "{{ wg_genkey['results'] }}"
 
 - name: Generate public keys
-  shell: echo "{{ lookup('file', wireguard_pki_path + '/private/' + item) }}" | wg pubkey
+  command: wg pubkey
   register: wg_pubkey
   args:
-    executable: bash
+    stdin: "{{ lookup('file', wireguard_pki_path + '/private/' + item) }}"
   no_log: true
   with_items:
     - "{{ users }}"

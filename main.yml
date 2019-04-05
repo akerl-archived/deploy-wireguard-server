@@ -5,9 +5,11 @@
       - config.cfg
       - default.cfg
   pre_tasks:
-    - set_fact:
+    - name: Set IP address fact
+      set_fact:
         server_ip: "{{ ansible_eth0.ipv4.address }}"
-    - include_vars: "{{ item }}"
+    - name: Load config file
+      include_vars: "{{ item }}"
       with_first_found: "{{ config_files }}"
   roles:
     - role: defaults

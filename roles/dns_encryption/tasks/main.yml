@@ -8,7 +8,6 @@
 - name: Install dnscrypt-proxy
   apt:
     name: dnscrypt-proxy
-    state: latest
     update_cache: true
 
 - name: Configure unattended-upgrades
