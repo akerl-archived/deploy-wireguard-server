@@ -30,6 +30,11 @@
       - "linux-headers-{{ ansible_kernel }}"
     state: present
 
+- name: Install python requirements
+  pip:
+    name: segno
+    executable: pip3
+
 - name: Loopback for services configured
   template:
     src: 10-algo-lo100.network.j2
