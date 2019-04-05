@@ -14,6 +14,6 @@ wireguard_network_gateway: 10.19.49.1
 wireguard_network_clients_range: 10.19.49
 wireguard_network_clients_start: 2
 wireguard_network_range: "{{ wireguard_network_subnet }}/{{ wireguard_network_prefix }}"
-wireguard_client_ip: "{{ wireguard_network_clients_range }}.{{ wireguard_network_clients_start + index|int + 1 }}/{{ wireguard_network_prefix }}"
+wireguard_client_ip: "{{ wireguard_network_clients_range }}.{{ wireguard_network_clients_start + index|int - 1 }}/{{ wireguard_network_prefix }}"
 wireguard_server_ip: "{{ wireguard_network_gateway }}/{{ wireguard_network_prefix }}"
 wireguard_dns_servers: "{{ local_service_ip }}"
