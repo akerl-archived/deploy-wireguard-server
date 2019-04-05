@@ -1,7 +1,7 @@
 [Interface]
 Address = {{ wireguard_server_ip }}
 ListenPort = {{ wireguard_port }}
-PrivateKey = {{ lookup('file', wireguard_pki_path + '/private/' + server_ip) }}
+PrivateKey = {{ wg_genkey[0]['stdout'] }}
 SaveConfig = false
 
 {% for u in users %}
@@ -9,7 +9,7 @@ SaveConfig = false
 
 [Peer]
 # {{ u }}
-PublicKey = {{ lookup('file', wireguard_pki_path + '/public/' + u) }}
+PublicKey = {{ wg_pubkey[index+1]['stdout'] }}
 AllowedIPs = {{ wireguard_network_clients_range }}.{{ wireguard_network_clients_start + index }}/32
 
 {% endfor %}
