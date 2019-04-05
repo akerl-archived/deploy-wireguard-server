@@ -1,4 +1,12 @@
 ---
+- name: Ensure the required directories exist
+  file:
+    dest: "{{ wireguard_pki_path }}/{{ item }}"
+    state: directory
+    recurse: true
+  with_items:
+    - private
+    - public
 - name: Generate private keys
   command: wg genkey
   register: wg_genkey
