@@ -16,7 +16,7 @@
   command: wg genkey
   register: wg_genkey
   no_log: true
-  loop: "{{ peers|flatten }}"
+  loop: "{{ peers }}"
 
 - name: Save private keys
   copy:
@@ -32,7 +32,7 @@
   args:
     stdin: "{{ wg_genkey['results'][index]['stdout'] }}"
   no_log: true
-  loop: "{{ peers|flatten }}"
+  loop: "{{ peers }}"
   loop_control:
     index_var: index
 

@@ -1,18 +1,14 @@
 - name: Provision the server
   hosts: all
-  vars:
-    config_files:
-      - config.cfg
-      - default.cfg
   pre_tasks:
     - name: Set IP address fact
       set_fact:
         server_ip: "{{ ansible_eth0.ipv4.address }}"
       tags:
         - always
-    - name: Load config file
-      include_vars: "{{ item }}"
-      with_first_found: "{{ config_files }}"
+    - name: Load custom config file
+      include_vars: "{{ user_config_file }}"
+      when: user_config_file is defined
       tags:
         - always
   roles:
