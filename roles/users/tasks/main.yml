@@ -1,4 +1,8 @@
 ---
+- name: "Set WG service name fact"
+  set_fact:
+    service_name: "wg-quick@{{ wireguard_interface }}"
+
 - name: Register all peers
   set_fact:
     peers: "{{ [server_ip, users]|flatten }}"

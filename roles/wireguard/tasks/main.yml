@@ -21,7 +21,3 @@
     owner: root
     group: root
     mode: 0644
-
-- name: "Set WG service name fact"
-  set_fact:
-    service_name: "wg-quick@{{ wireguard_interface }}"
