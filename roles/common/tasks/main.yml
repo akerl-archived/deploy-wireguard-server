@@ -5,7 +5,7 @@
     state: started
     enabled: true
     daemon_reload: true
-  with_items:
+  loop:
     - systemd-networkd
     - systemd-resolved
 
@@ -51,7 +51,7 @@
   sysctl:
     name: "{{ item.item }}"
     value: "{{ item.value }}"
-  with_items:
+  loop:
     - item: net.ipv4.ip_forward
       value: 1
     - item: net.ipv4.conf.all.forwarding

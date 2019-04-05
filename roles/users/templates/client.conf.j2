@@ -1,9 +1,9 @@
 [Interface]
-PrivateKey = {{ lookup('file', wireguard_pki_path + '/private/' + item.1) }}
+PrivateKey = {{ item[0]['stdout'] }}
 Address = {{ wireguard_client_ip }}
 DNS = {{ wireguard_dns_servers }}
 
 [Peer]
-PublicKey = {{ lookup('file', wireguard_pki_path + '/public/' + server_ip) }}
+PublicKey = {{ item[1]['stdout'] }}
 AllowedIPs = 0.0.0.0/0, ::/0
 Endpoint = {{ server_ip }}:{{ wireguard_port }}

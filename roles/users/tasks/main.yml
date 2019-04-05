@@ -1,10 +1,16 @@
 ---
+- name: Register all peers
+  set_fact:
+    peers:
+      - "{{ users }}"
+      - "{{ server_ip }}"
+
 - name: Ensure the required directories exist
   file:
     dest: "{{ wireguard_pki_path }}/{{ item }}"
     state: directory
     recurse: true
-  with_items:
+  loop:
     - private
     - public
 
@@ -12,9 +18,7 @@
   command: wg genkey
   register: wg_genkey
   no_log: true
-  with_items:
-    - "{{ users }}"
-    - "{{ server_ip }}"
+  loop: "{{ peers }}"
 
 - name: Save private keys
   copy:
@@ -22,17 +26,17 @@
     content: "{{ item['stdout'] }}"
     mode: "0600"
   no_log: true
-  with_items: "{{ wg_genkey['results'] }}"
+  loop: "{{ wg_genkey['results'] }}"
 
 - name: Generate public keys
   command: wg pubkey
   register: wg_pubkey
   args:
-    stdin: "{{ lookup('file', wireguard_pki_path + '/private/' + item) }}"
+    stdin: "{{ wg_genkey['results'][index]['stdout'] }}"
   no_log: true
-  with_items:
-    - "{{ users }}"
-    - "{{ server_ip }}"
+  loop: "{{ peers }}"
+  loop_control:
+    index_var: index
 
 - name: Save public keys
   copy:
@@ -40,22 +44,22 @@
     content: "{{ item['stdout'] }}"
     mode: "0600"
   no_log: true
-  with_items: "{{ wg_pubkey['results'] }}"
+  loop: "{{ wg_pubkey['results'] }}"
 
 - name: WireGuard users config generated
   template:
     src: client.conf.j2
-    dest: "{{ wireguard_config_path }}/{{ item.1 }}.conf"
+    dest: "{{ wireguard_config_path }}/{{ item[0]['item'] }}.conf"
     mode: "0600"
-  with_indexed_items:  "{{ users }}"
-  vars:
-    index: "{{ item.0 }}"
+  loop: "{{ wg_genkey['results']|zip(wg_pubkey['results'])|list }}"
+  loop_control:
+    index_var: index
 
 - name: Generate QR codes
-  command: segno --scale=5 --output={{ item.1 }}.png "{{ lookup('template', 'client.conf.j2') }}"
-  with_indexed_items:  "{{ users }}"
-  vars:
-    index: "{{ item.0 }}"
+  command: segno --scale=5 --output={{ item[0]['item'] }}.png "{{ lookup('template', 'client.conf.j2') }}"
+  loop: "{{ wg_genkey['results']|zip(wg_pubkey['results'])|list }}"
+  loop_control:
+    index_var: index
   args:
     chdir: "{{ wireguard_config_path }}"
 
