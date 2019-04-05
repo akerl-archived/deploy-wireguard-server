@@ -1,4 +1,9 @@
----
+local_service_ip: 172.16.0.1
+dnscrypt_servers:
+  - google
+unattended_reboot:
+  enabled: true
+  time: 2:00
 wireguard_config_path: "configs/{{ server_ip }}/wireguard"
 wireguard_pki_path: "{{ wireguard_config_path }}/.pki"
 wireguard_interface: wg0

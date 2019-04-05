@@ -10,8 +10,11 @@
     - include_vars: "{{ item }}"
       with_first_found: "{{ config_files }}"
   roles:
-    - role: unattended_upgrades
+    - role: defaults
+      tags:
+        - always
     - role: common
+    - role: unattended_upgrades
     - role: dns_encryption
     - role: wireguard
     - role: users
