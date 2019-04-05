@@ -4,6 +4,6 @@ Address = {{ wireguard_client_ip }}
 DNS = {{ wireguard_dns_servers }}
 
 [Peer]
-PublicKey = {{ item[1]['stdout'] }}
+PublicKey = {{ wg_pubkey['results'][0]['stdout'] }}
 AllowedIPs = 0.0.0.0/0, ::/0
 Endpoint = {{ server_ip }}:{{ wireguard_port }}
