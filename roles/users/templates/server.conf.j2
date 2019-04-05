@@ -5,7 +5,7 @@ PrivateKey = {{ wg_genkey['results'][0]['stdout'] }}
 SaveConfig = false
 
 {% for u in users %}
-{% set index = loop.index %}
+{% set index = loop.index0 %}
 
 [Peer]
 # {{ u }}
