@@ -1,5 +1,5 @@
 - name: Provision the server
-  hosts: localhost
+  hosts: all
   vars:
     config_files:
       - config.cfg
