@@ -6,6 +6,10 @@
     warn: false
 - name: Generate new host keys
   command: ssh-keygen -A
+- name: Remove swap device
+  mount:
+    src: /dev/sdb
+    state: absent
 - name: Update sshd_config
   copy:
     src: sshd_config
