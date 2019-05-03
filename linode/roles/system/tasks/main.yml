@@ -9,6 +9,8 @@
 - name: Remove swap device
   mount:
     src: /dev/sdb
+    path: none
+    fstype: swap
     state: absent
 - name: Update sshd_config
   copy:
